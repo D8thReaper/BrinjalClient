@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_id": "brinjal-1238",
+    "project_number": "849300291145",
+    "name": "Brinjal"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:849300291145:android:ebea812f9f27d353",
+        "client_id": "android:exun.cli.in.brinjal",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "exun.cli.in.brinjal",
+          "certificate_hash": []
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "849300291145-la9f3ejaa91mp4716j5nhq8egkfb6sei.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "exun.cli.in.brinjal",
+            "certificate_hash": "686F2592EC1084E3BAF641C49E8235FF0D2A89EC"
+          }
+        },
+        {
+          "client_id": "849300291145-2m47pgiedma90btt6cb3qbo0rqlfokdq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "cloud_messaging_service": {
+          "status": 1,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 2
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}
