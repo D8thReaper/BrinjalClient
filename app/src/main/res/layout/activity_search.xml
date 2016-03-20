@@ -10,7 +10,6 @@
         android:id="@+id/toolbarLayput"
         android:layout_width="match_parent"
         android:layout_height="55dp"
-        android:layout_below="@+id/imageView3"
         android:layout_centerHorizontal="true"
         android:layout_margin="5dp"
         android:clickable="true"
@@ -27,9 +26,9 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toEndOf="@+id/searchBack"
-                android:layout_toLeftOf="@+id/imageView4"
+                android:layout_toLeftOf="@+id/searchImageButton"
                 android:layout_toRightOf="@+id/searchBack"
-                android:layout_toStartOf="@+id/imageView4"
+                android:layout_toStartOf="@+id/searchImageButton"
                 android:hint="Search #Zippr or cafe, hotel, barber.."
                 android:inputType="text"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
@@ -37,7 +36,7 @@
 
 
             <ImageView
-                android:id="@+id/imageView4"
+                android:id="@+id/searchImageButton"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_alignParentEnd="true"
@@ -53,7 +52,7 @@
                 android:layout_height="30dp"
                 android:layout_alignParentLeft="true"
                 android:layout_alignParentStart="true"
-                android:layout_alignTop="@+id/imageView4"
+                android:layout_alignTop="@+id/searchImageButton"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="3dp"
                 android:layout_marginStart="3dp"
@@ -68,8 +67,8 @@
         android:id="@+id/cvSearch"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/textView7"
         android:layout_alignRight="@+id/toolbarLayput"
+        android:layout_below="@+id/toolbarLayput"
         android:layout_alignEnd="@+id/toolbarLayput"
         android:layout_alignLeft="@+id/toolbarLayput"
         android:layout_alignStart="@+id/toolbarLayput">

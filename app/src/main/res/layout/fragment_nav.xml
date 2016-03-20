@@ -105,10 +105,11 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Small Text"
-                android:id="@+id/textView5"
+                android:id="@+id/selectedCatTitle"
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@+id/backNavSC"
-                android:layout_toEndOf="@+id/backNavSC" />
+                android:layout_toEndOf="@+id/backNavSC"
+                android:textColor="@color/colorPrimary" />
         </RelativeLayout>
 
     </RelativeLayout>

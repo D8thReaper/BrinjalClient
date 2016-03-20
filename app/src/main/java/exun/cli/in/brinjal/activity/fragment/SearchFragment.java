@@ -3,6 +3,8 @@ package exun.cli.in.brinjal.activity.fragment;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.database.MergeCursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -57,9 +59,13 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
     private SQLiteHandler db;
     private String TAG = "SearchFragment";
     private ProgressDialog pDialog;
-    private ImageView btnRetry,back;
-    String code ;
+    private ImageView btnRetry, back, searchNow;
+    String code;
     CardView cvSearch;
+    private int isCode;
+    private Cursor childCursor, parentCusor, pcCursor, cursors[];
+    private boolean hasData;
+    private MergeCursor mergeCursorChild,mergeCursorParent;
 
     public SearchFragment() {
     }
@@ -72,15 +78,190 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
         // SQLite database handler
         db = new SQLiteHandler(getActivity().getApplicationContext());
 
-        textView = (TextView) rootView.findViewById(R.id.textView7);
-        btnRetry = (ImageView) rootView.findViewById(R.id.btnRetry);
-        searchBar = (EditText) rootView.findViewById(R.id.toolbar);
-        cvSearch = (CardView) rootView.findViewById(R.id.cvSearch);
-        back = (ImageView) rootView.findViewById(R.id.searchBack);
-        searchBar.requestFocus();
+        initialize(rootView);
 
-        lvSearch = (ListView) rootView.findViewById(R.id.lvSearch);
+        setClickListeners();
 
+        /** Creating a loader for populating listview from sqlite database */
+        /** This statement, invokes the method onCreatedLoader() */
+        getActivity().getSupportLoaderManager().initLoader(0, null, this);
+
+        searchBar.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() > 0) {
+//                    getActivity().runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            // This code will always run on the UI thread, therefore is safe to modify UI elements.
+//                            textView.setVisibility(View.GONE);
+//                        }
+//                    });
+                    mAdapter.getFilter().filter(s.toString());
+                } else {
+                    isCode = 0;
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // This code will always run on the UI thread, therefore is safe to modify UI elements.
+                            textView.setVisibility(View.GONE);
+                            cvSearch.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    getActivity().getSupportLoaderManager().getLoader(0).forceLoad();
+                }
+            }
+        });
+
+        mAdapter.setFilterQueryProvider(new FilterQueryProvider() {
+            @Override
+            public Cursor runQuery(final CharSequence constraint) {
+                String where;
+
+                if (constraint.toString().startsWith("#")) {
+                    isCode = 1;
+                    Log.d(TAG, "#Done");
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // This code will always run on the UI thread, therefore is safe to modify UI elements.
+                            cvSearch.setVisibility(View.GONE);
+                            textView.setVisibility(View.VISIBLE);
+                            textView.setText("Enter code: #BXXXX");
+                        }
+                    });
+                } else {
+                    int parentID = -1;
+                    hasData = false;
+                    isCode = 2;
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // This code will always run on the UI thread, therefore is safe to modify UI elements.
+                            cvSearch.setVisibility(View.VISIBLE);
+                        }
+                    });
+                    where = "name LIKE '" + constraint.toString() + "%' or name LIKE '% " + constraint.toString() + "%'";
+
+                    childCursor = db.fetchChildren(where);
+                    if (childCursor != null && childCursor.getCount() > 0) {
+                        hasData = true;
+                        parentID = childCursor.getInt(childCursor.getColumnIndexOrThrow("parent_id"));
+                        mergeCursorParent = new MergeCursor(new Cursor[]{childCursor});
+                        Log.d(TAG,"Child mil gaya!");
+                    }
+
+                    parentCusor = db.fetchGroupByName(where);
+                    if (parentCusor != null && parentCusor.getCount() > 0) {
+                        int id = parentCusor.getInt(parentCusor.getColumnIndex("_id"));
+                        Log.d(TAG,parentID + " " +id);
+                        if (parentID== -1 || parentID!=id) {
+                            hasData = true;
+                            final String name = parentCusor.getString(parentCusor.getColumnIndex("name"));
+
+                            String[] columnNames = {"_id", "name"};
+                            MatrixCursor matrixCursor = new MatrixCursor(columnNames);
+                            matrixCursor.addRow(new String[]{"-1", "in Category " + name + ": "});
+
+
+                            where = "parent_id = '" + id + "'";
+                            pcCursor = db.fetchChildren(where);
+
+                            mergeCursorParent = new MergeCursor(new Cursor[]{mergeCursorChild, matrixCursor, pcCursor});
+                            Log.d(TAG,"Bapu mil gaya!");
+                        }
+                        Log.d(TAG,"Child and bapu mil gaya!");
+
+                    }
+
+                    if (!hasData) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // This code will always run on the UI thread, therefore is safe to modify UI elements.
+                                textView.setVisibility(View.VISIBLE);
+                                textView.setText("No local data!");
+                                cvSearch.setVisibility(View.GONE);
+                                Log.d(TAG,"No data mila!");
+                            }
+                        });
+                        return null;
+                    } else {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                // This code will always run on the UI thread, therefore is safe to modify UI elements.
+                                textView.setVisibility(View.GONE);
+                            }
+                        });
+                        Log.d(TAG,"Sab Mila!");
+                        return mergeCursorParent;
+                    }
+
+
+//                    if (childCursor != null && childCursor.getCount() > 0) {
+//
+//                        getActivity().runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                // This code will always run on the UI thread, therefore is safe to modify UI elements.
+//
+//                            }
+//                        });
+//                        return childCursor;
+//
+//
+//                    } else {
+//
+//                        where = "name LIKE '" + constraint.toString() + "%' or name LIKE '% " + constraint.toString() + "%'";
+//                        Cursor parentCursor = db.fetchGroupByName(where);
+//
+//                        if (parentCursor != null && parentCursor.getCount() > 0) {
+//
+//                            final String name = "in " + parentCursor.getString(parentCursor.getColumnIndex("name"));
+//
+//                            getActivity().runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    // This code will always run on the UI thread, therefore is safe to modify UI elements.
+//
+//                                }
+//                            });
+//
+//                            int id = parentCursor.getInt(parentCursor.getColumnIndex("_id"));
+//                            where = "parent_id = '" + id + "'";
+//                            parentCursor.close();
+//                            return db.fetchChildren(where);
+//
+//                        } else {
+//                            getActivity().runOnUiThread(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    // This code will always run on the UI thread, therefore is safe to modify UI elements.
+//
+//                                }
+//                            });
+//                            return parentCursor;
+//                        }
+//                    }
+                }
+                return null;
+            }
+        });
+
+        return rootView;
+    }
+
+    private void setClickListeners() {
         btnRetry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -103,8 +284,8 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
                 Cursor cursor = (Cursor) lvSearch.getItemAtPosition(position);
                 int sId = cursor.getInt(cursor.getColumnIndexOrThrow("_id"));
                 String sName = cursor.getString(cursor.getColumnIndexOrThrow("name"));
-                ((MainActivity)getActivity()).setSubCatDetails(sId,sName);
-                ((MainActivity)getActivity()).displayView(1);
+                ((MainActivity) getActivity()).setSubCatDetails(sId, sName);
+                ((MainActivity) getActivity()).displayView(1);
             }
         });
 
@@ -115,152 +296,33 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
             }
         });
 
-        /** Creating a loader for populating listview from sqlite database */
-        /** This statement, invokes the method onCreatedLoader() */
-        getActivity().getSupportLoaderManager().initLoader(0, null, this);
-
-        searchBar.addTextChangedListener(new TextWatcher() {
+        searchNow.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (s.length() > 0) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // This code will always run on the UI thread, therefore is safe to modify UI elements.
-                            textView.setVisibility(View.GONE);
-                        }
-                    });
-                    mAdapter.getFilter().filter(s.toString());
-                } else {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // This code will always run on the UI thread, therefore is safe to modify UI elements.
-                            textView.setVisibility(View.VISIBLE);
-                        }
-                    });
-                    getActivity().getSupportLoaderManager().getLoader(0).forceLoad();
+            public void onClick(View v) {
+                if (isCode != 0) {
+                    if (isCode == 1)
+                        launchRequest(searchBar.getText().toString());
+                    else
+                        doOnlineQuery(searchBar.getText().toString());
                 }
             }
         });
+    }
 
-        mAdapter.setFilterQueryProvider(new FilterQueryProvider() {
-            @Override
-            public Cursor runQuery(final CharSequence constraint) {
-                String where;
+    private void doOnlineQuery(String s) {
+        Toast.makeText(getActivity(), s, Toast.LENGTH_SHORT).show();
+    }
 
-                if (constraint.toString().startsWith("#")) {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // This code will always run on the UI thread, therefore is safe to modify UI elements.
-                            searchBar.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS);
-                            cvSearch.setVisibility(View.GONE);
-                            textView.setVisibility(View.VISIBLE);
-                            if (constraint.length() <= 6) {
-                                if (constraint.length() >= 2 && !constraint.toString().startsWith("#B")) {
-                                    searchBar.setError("Wrong code format! ");
-                                    textView.setText(Html.fromHtml("<p><br/>Correct format <b>#B</b>XXXX</p>"));
-                                } else {
-                                    if (constraint.length() == 6) {
-                                        code = constraint.toString();
-                                        launchRequest(constraint.toString());
-                                    }
-                                    else if (constraint.length() == 1)
-                                        textView.setText(Html.fromHtml("<p>Code format: <b>#</b>BXXXX </p>"));
-                                    else if (constraint.length() == 2)
-                                        textView.setText(Html.fromHtml("<p><b>#B</b>XXXX</p>"));
-                                    else {
-                                        String x = "";
-                                        Log.d("TextLength",constraint.length()+ " "+( 6 - constraint.length()) + x);
-                                        for (int i = (6 - constraint.length()); i < 6; i++)
-                                            x = x.concat("X");
-                                        textView.setText(Html.fromHtml("<p><b>" + constraint.toString() + "</b>" + x + "</p>"));
-                                    }
-                                }
-                            } else {
-                                searchBar.setError("Wrong code format! ");
-                                textView.setText("<br/>Correct format #BXXXX");
-                            }
-                        }
-                    });
-                } else {
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            // This code will always run on the UI thread, therefore is safe to modify UI elements.
-                            searchBar.setInputType(InputType.TYPE_CLASS_TEXT);
-                            cvSearch.setVisibility(View.VISIBLE);
-                        }
-                    });
-                    where = "name LIKE '" + constraint.toString() + "%' or name LIKE '% " + constraint.toString() + "%'";
+    private void initialize(View rootView) {
+        textView = (TextView) rootView.findViewById(R.id.textView7);
+        btnRetry = (ImageView) rootView.findViewById(R.id.btnRetry);
+        searchBar = (EditText) rootView.findViewById(R.id.toolbar);
+        cvSearch = (CardView) rootView.findViewById(R.id.cvSearch);
+        back = (ImageView) rootView.findViewById(R.id.searchBack);
+        searchNow = (ImageView) rootView.findViewById(R.id.searchImageButton);
+        searchBar.requestFocus();
 
-                    Cursor childCursor = db.fetchChildren(where);
-                    if (childCursor != null && childCursor.getCount() > 0) {
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                // This code will always run on the UI thread, therefore is safe to modify UI elements.
-                                textView.setVisibility(View.INVISIBLE);
-                            }
-                        });
-                        return childCursor;
-
-
-                    } else {
-
-                        where = "name LIKE '" + constraint.toString() + "%' or name LIKE '% " + constraint.toString() + "%'";
-                        Cursor parentCursor = db.fetchGroupByName(where);
-
-                        if (parentCursor != null && parentCursor.getCount() > 0) {
-
-                            final String name = "in " + parentCursor.getString(parentCursor.getColumnIndex("name"));
-
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    // This code will always run on the UI thread, therefore is safe to modify UI elements.
-                                    textView.setVisibility(View.VISIBLE);
-                                     textView.setText("");
-                                }
-                            });
-
-                            int id = parentCursor.getInt(parentCursor.getColumnIndex("_id"));
-                            where = "parent_id = '" + id + "'";
-                            parentCursor.close();
-                            return db.fetchChildren(where);
-
-                        } else {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    // This code will always run on the UI thread, therefore is safe to modify UI elements.
-                                    textView.setVisibility(View.VISIBLE);
-                                    textView.setText("No results matching your query!");
-                                }
-                            });
-                            return parentCursor;
-                        }
-                    }
-
-                }
-
-
-                return null;
-            }
-        });
-
-        return rootView;
+        lvSearch = (ListView) rootView.findViewById(R.id.lvSearch);
     }
 
     private void launchRequest(final String code) {
@@ -275,7 +337,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
         pDialog.show();
 
         StringRequest strReq = new StringRequest(Request.Method.POST,
-                AppConstants.URL_REGISTER, new Response.Listener<String>() {
+                AppConstants.URL_CODE, new Response.Listener<String>() {
 
             @Override
             public void onResponse(String response) {
@@ -291,12 +353,12 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
                         // Now store the user in sqlite
                         int Sid = jObj.getInt("placeid");
 
-                        if (Sid == 0){
-                            showError("Code not found!",0);
-                        }else {
+                        if (Sid == 0) {
+                            showError("Code not found!", 0);
+                        } else {
                             // Launch camera activity
-                            Intent intent = new Intent( getActivity(), StoreDetail.class);
-                            intent.putExtra("id",Sid);
+                            Intent intent = new Intent(getActivity(), StoreDetail.class);
+                            intent.putExtra("id", Sid);
                             String storeURL = AppConstants.URL_STORES + Sid;
                             intent.putExtra("url", storeURL);
                             intent.putExtra("title", "Store");
@@ -309,7 +371,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
                         // Error occurred in registration. Get the error
                         // message
                         String errorMsg = jObj.getString("message");
-                        showError("Connection failed!",1);
+                        showError("Connection failed!", 1);
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -345,7 +407,7 @@ public class SearchFragment extends Fragment implements LoaderManager.LoaderCall
 
     private void showError(String s, int retry) {
         textView.setText(s);
-        if (retry==1)
+        if (retry == 1)
             btnRetry.setVisibility(View.VISIBLE);
     }
 

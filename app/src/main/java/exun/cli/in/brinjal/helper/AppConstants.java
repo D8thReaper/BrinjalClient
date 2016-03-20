@@ -50,7 +50,7 @@ public class AppConstants {
     public static String URL_LOGIN = "http://android.brinjal.me/user/v2/login";
 
     // Register url
-    public static String URL_REGISTER = "http://android.brinjal.me/user/v2/register";
+    public static String URL_REGISTER = "http://android.brinjal.me/user/v2/check_code";
 
     // Store details
     public static String URL_STORES = "http://android.brinjal.me/user/v1/place_details/";
