@@ -9,21 +9,18 @@ Brinjal is an engine to connect you to customers around you!
 
 ## Ease of use - Powered by Watson
 
-We used a couple of Watson APIs to improve the user experience we try to provide!
-1. Retrieve and rank -> To generate better search results for the user queries.
+We used a couple of Watson APIs to improve the user experience we try to provide! 
+
+1. Retrieve and rank -> To generate better search results for the user queries. 
 2. Tone analyzer -> To detect the emotion while reviewing a 'place' 
 3. Help the merchant to react and improve in the direction of the feedbacks' emotions.
 
 ## Screenshots
 
-
-
-TODO: Write history
+https://drive.google.com/folderview?id=0B4XR9GesdgYOLWI5dmg1YS1nRXM&usp=sharing
 
 ## Credits
 
-TODO: Write credits
-
-## License
-
-TODO: Write license
+@hkhatri241
+@lakshit1001
+@d8threaper
