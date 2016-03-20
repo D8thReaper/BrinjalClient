@@ -22,8 +22,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.OptionalPendingResult;
-import com.google.android.gms.common.api.ResultCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -143,31 +141,31 @@ public class LoginActivity extends AppCompatActivity implements
 
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
-        if (opr.isDone()) {
-            // If the user's cached credentials are valid, the OptionalPendingResult will be "done"
-            // and the GoogleSignInResult will be available instantly.
-            Log.d(TAG, "Got cached sign-in");
-            GoogleSignInResult result = opr.get();
-            handleSignInResult(result);
-        } else {
-            // If the user has not previously signed in on this device or the sign-in has expired,
-            // this asynchronous branch will attempt to sign in the user silently.  Cross-device
-            // single sign-on will occur in this branch.
-            showDialog();
-            opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
-                @Override
-                public void onResult(GoogleSignInResult googleSignInResult) {
-                    hideDialog();
-                    handleSignInResult(googleSignInResult);
-                }
-            });
-        }
-    }
+//    @Override
+//    public void onStart() {
+//        super.onStart();
+//
+//        OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
+//        if (opr.isDone()) {
+//            // If the user's cached credentials are valid, the OptionalPendingResult will be "done"
+//            // and the GoogleSignInResult will be available instantly.
+//            Log.d(TAG, "Got cached sign-in");
+//            GoogleSignInResult result = opr.get();
+//            handleSignInResult(result);
+//        } else {
+//            // If the user has not previously signed in on this device or the sign-in has expired,
+//            // this asynchronous branch will attempt to sign in the user silently.  Cross-device
+//            // single sign-on will occur in this branch.
+//            showDialog();
+//            opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
+//                @Override
+//                public void onResult(GoogleSignInResult googleSignInResult) {
+//                    hideDialog();
+//                    handleSignInResult(googleSignInResult);
+//                }
+//            });
+//        }
+//    }
 
     // [START onActivityResult]
     @Override
@@ -191,19 +189,87 @@ public class LoginActivity extends AppCompatActivity implements
             sName = acct.getDisplayName();
             sEmail = acct.getEmail();
 
-            // user successfully logged in
-            // Create login session
-            session.setLogin(true);
+            pDialog.setMessage("Logging in ...");
+            showDialog();
 
-            // TODO: Call /loginGoogle api to add details if not already there and retrieve userID
+            // Tag used to cancel the request
+            String tag_string_req = "req_login";
 
-            db.addUser(1,sName,sEmail);
+            StringRequest strReq = new StringRequest(Request.Method.POST,
+                    AppConstants.URL_LOGIN_GOOGLE, new Response.Listener<String>() {
 
-            // Launch main activity
-            Intent intent = new Intent(LoginActivity.this,
-                    MainActivity.class);
-            startActivity(intent);
-            finish();
+                @Override
+                public void onResponse(String response) {
+                    Log.d(TAG, "Login Response: " + response.toString());
+                    hideDialog();
+
+                    try {
+                        JSONObject jObj = new JSONObject(response);
+                        boolean error = jObj.getBoolean("error");
+
+                        // Check for error node in json
+                        if (!error) {
+                            // user successfully logged in
+                            // Create login session
+                            session.setLogin(true);
+
+                            Log.d(TAG,"Saving data");
+
+                            int id = jObj.getInt("id");
+                            int hasLoc = jObj.getInt("hasLoc");
+                            int hasBookmark = jObj.getInt("hasBookmarks");
+
+                            session.setBookmarks(hasBookmark);
+                            session.setLoc(hasLoc);
+
+                            db.addUser(id,sName,sEmail,hasBookmark,hasLoc);
+
+                            Log.d(TAG,"Starting main activity");
+
+                            // Launch main activity
+                            Intent intent = new Intent(LoginActivity.this,
+                                    MainActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            // Error in login. Get the error message
+                            String errorMsg = jObj.getString("message");
+                            Toast.makeText(getApplicationContext(),
+                                    errorMsg, Toast.LENGTH_SHORT).show();
+
+                        }
+                    } catch (JSONException e) {
+                        // JSON error
+                        e.printStackTrace();
+                    }
+
+                }
+            }, new Response.ErrorListener() {
+
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e(TAG, "Login Error: " + error.getMessage());
+                    Toast.makeText(getApplicationContext(),
+                            error.getMessage(), Toast.LENGTH_LONG).show();
+                    hideDialog();
+                }
+            }) {
+
+                @Override
+                protected Map<String, String> getParams() {
+                    // Posting parameters to login url
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put("tag", "login");
+                    params.put("name", sName);
+                    params.put("email", sEmail);
+
+                    return params;
+                }
+
+            };
+
+            // Adding request to request queue
+            AppController.getInstance().addToRequestQueue(strReq, tag_string_req);
         } else {
             // Signed out, show unauthenticated UI.
             Toast.makeText(getApplicationContext(),
@@ -259,8 +325,13 @@ public class LoginActivity extends AppCompatActivity implements
                         int id = user.getInt("id");
                         sName = user.getString("name");
                         sEmail = user.getString("email");
+                        int hasLoc = user.getInt("hasLoc");
+                        int hasBookmark = user.getInt("hasBookmarks");
 
-                        db.addUser(id,sName,sEmail);
+                        session.setBookmarks(hasBookmark);
+                        session.setLoc(hasLoc);
+
+                        db.addUser(id,sName,sEmail,hasBookmark,hasLoc);
 
                         Log.d(TAG,"Starting main activity");
 

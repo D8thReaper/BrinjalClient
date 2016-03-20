@@ -137,10 +137,12 @@ public class FetchAddressIntentService extends IntentService {
     private void deliverResultToReceiver(int resultCode, String message, Double lat, Double longi, String locality, String city) {
         Bundle bundle = new Bundle();
         bundle.putString(AppConstants.RESULT_DATA_KEY, message);
-        bundle.putDouble(AppConstants.RESULT_LAT, lat);
-        bundle.putDouble(AppConstants.RESULT_LONG, longi);
-        bundle.putString(AppConstants.RESULT_LOCALITY, locality);
-        bundle.putString(AppConstants.RESULT_CITY, city);
+        if (resultCode == AppConstants.SUCCESS_RESULT){
+            bundle.putDouble(AppConstants.RESULT_LAT, lat);
+            bundle.putDouble(AppConstants.RESULT_LONG, longi);
+            bundle.putString(AppConstants.RESULT_LOCALITY, locality);
+            bundle.putString(AppConstants.RESULT_CITY, city);
+        }
         mReceiver.send(resultCode, bundle);
     }
 }

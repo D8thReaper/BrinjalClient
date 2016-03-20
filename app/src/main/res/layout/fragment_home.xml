@@ -1,41 +1,124 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="#f1f1f1"
+    android:padding="1dp">
 
     <ImageView
-        android:layout_width="120dp"
-        android:layout_height="120dp"
-        android:src="@mipmap/ic_scan"
         android:id="@+id/buttonScan"
-        android:elevation="2dp"
-        android:layout_below="@+id/searchView"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@mipmap/ic_scan"
+        android:layout_below="@+id/searchViewLayout"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="62dp" />
+        android:layout_marginTop="30dp" />
 
-    <ImageView
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
+    <LinearLayout
         android:id="@+id/imageView3"
-        android:src="@drawable/brinjal"
-        android:layout_above="@+id/searchView"
-        android:layout_centerHorizontal="true" />
-
-    <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="No location data!"
-        android:id="@+id/textViewLocation"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:paddingLeft="75dp"
+        android:paddingRight="75dp">
 
-    <SearchView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/searchView"
-        android:queryHint="Search something"
-        android:iconifiedByDefault="false"
-        android:voiceSearchMode="showVoiceSearchButton|launchRecognizer"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        <ImageView
+            android:layout_gravity=""
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:src="@drawable/brinjal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+
+
+
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/searchViewLayout"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:clickable="true"
+        app:cardCornerRadius="2dp"
+        android:padding="5dp"
+        android:layout_below="@+id/imageView3"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="5dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:text="Search..."
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="14dp"
+                android:layout_marginStart="14dp"/>
+
+            <ImageView
+                android:src="@drawable/ic_search"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:id="@+id/imageView4"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginRight="14dp"
+                android:layout_marginEnd="14dp"/>
+        </RelativeLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:id="@+id/view"
+        android:layout_below="@+id/buttonScan"
+        android:layout_alignLeft="@+id/searchViewLayout"
+        android:layout_alignStart="@+id/searchViewLayout"
+        android:layout_marginTop="39dp"
+        android:layout_alignRight="@+id/searchViewLayout"
+        android:layout_alignEnd="@+id/searchViewLayout">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Popular categories"
+                android:padding="10dp"
+                android:id="@+id/textView6"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true" />
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="2dp"
+                android:background="@color/colorPrimary"
+                android:layout_marginEnd="100dp"
+                android:layout_marginLeft="100dp"
+                android:layout_marginRight="100dp"
+                android:layout_marginStart="100dp"
+                android:id="@+id/textView8"
+                android:layout_below="@+id/textView6"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+
 </RelativeLayout>

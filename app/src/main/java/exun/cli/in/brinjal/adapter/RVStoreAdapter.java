@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,7 +59,7 @@ public class RVStoreAdapter extends RecyclerView.Adapter<RVStoreAdapter.DataHold
     }
 
     public RVStoreAdapter(Context context,List<StoreList> storeLists, double lat, double longi) {
-        this.storeLists = new ArrayList<>(storeLists);
+        this.storeLists = storeLists;
         location1.setLatitude(lat);
         location1.setLongitude(longi);
         this.context = context;
@@ -82,20 +81,21 @@ public class RVStoreAdapter extends RecyclerView.Adapter<RVStoreAdapter.DataHold
         location2.setLatitude(storeLists.get(position).getLati());
         location2.setLongitude(storeLists.get(position).getLongi());
         float disInM = location1.distanceTo(location2);
+        storeLists.get(position).setDisInM(disInM);
         String distance;
-        if (disInM/1000.0 > 0) {
-            disInM /= 1000.0;
-            distance = disInM + " KM away from you";
+        if (disInM/1000.0 < 1) {
+            distance = String.format("%.02f",disInM) + " m away from you";
         }
         else {
-            distance = disInM + " m away from you";
+            disInM /= 1000.0;
+            distance = String.format("%.02f",disInM) + " KM away from you";
         }
+
         holder.sDistance.setText(distance);
         holder.sLocation.setText(storeLists.get(position).getLocality());
         holder.directions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(holder.directions.getContext(), "Khud chala ja", Toast.LENGTH_SHORT).show();
                 showMap(storeLists.get(position).getLati(), storeLists.get(position).getLongi());
             }
         });
@@ -212,5 +212,9 @@ public class RVStoreAdapter extends RecyclerView.Adapter<RVStoreAdapter.DataHold
             // SHOW THE ALERT DIALOG
             alertDialog.show();
         }
+    }
+
+    public void setList(List<StoreList> mList){
+        this.storeLists = new ArrayList<>(mList);
     }
 }

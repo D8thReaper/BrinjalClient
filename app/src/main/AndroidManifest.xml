@@ -15,31 +15,13 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
         <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
-            <meta-data
-                android:name="android.app.default_searchable"
-                android:value=".SearchResultsActivity" />
         </activity>
-
-
-        <activity android:name=".activity.SearchResultsActivity"
-            android:parentActivityName=".activity.MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.SEARCH" />
-            </intent-filter>
-
-            <meta-data
-                android:name="android.app.searchable"
-                android:resource="@xml/searchable" />
-        </activity>
-
         <activity android:name=".activity.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -60,6 +42,32 @@
 
         <activity android:name=".activity.LoginActivity" />
         <activity android:name=".activity.Register" />
+        <activity
+            android:name=".activity.StoreDetail"
+            android:configChanges="orientation|screenSize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.Store" />
+        </activity>
+        <activity
+            android:name=".activity.UserDetails"
+            android:configChanges="orientation|screenSize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MainActivity" />
+        </activity>
+        <activity
+            android:name=".activity.Store"
+            android:configChanges="orientation|screenSize">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activity.MainActivity" />
+        </activity>
+
+        <provider
+            android:name=".contentProvider.Categories"
+            android:authorities="exun.cli.in.brinjal.contentProvider.categories"
+            android:exported="false" />
     </application>
 
 </manifest>

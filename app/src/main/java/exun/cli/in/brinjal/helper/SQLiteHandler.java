@@ -30,6 +30,8 @@ public class SQLiteHandler extends SQLiteOpenHelper {
 
     // Login Table Columns names
     private static final String KEY_EMAIL = "email";
+    private static final String KEY_HAS_BOOKMARKS = "hasbookmarks";
+    private static final String KEY_HAS_LOC = "hasloc";
 
     // Sub Categories Column names
     private static final String KEY_PARENT_ID = "parent_id";
@@ -44,7 +46,10 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         String CREATE_LOGIN_TABLE = "CREATE TABLE " + TABLE_LOGIN + "("
                 + KEY_ID + " INTEGER PRIMARY KEY,"
                 + KEY_NAME + " TEXT,"
-                + KEY_EMAIL + " TEXT UNIQUE" + ")";
+                + KEY_EMAIL + " TEXT UNIQUE,"
+                + KEY_HAS_BOOKMARKS + " INTEGER,"
+                + KEY_HAS_LOC + " INTEGER"
+                + ")";
         db.execSQL(CREATE_LOGIN_TABLE);
 
         String CREATE_CATEGORY = "CREATE TABLE " + TABLE_CATEGORIES + "("
@@ -74,13 +79,15 @@ public class SQLiteHandler extends SQLiteOpenHelper {
     /**
      * Storing user details in database
      * */
-    public void addUser(int uId,String name, String email) {
+    public void addUser(int uId,String name, String email, int hasBookmark, int hasLocation) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(KEY_ID,uId);
         values.put(KEY_NAME, name); // Name
         values.put(KEY_EMAIL, email); // Email
+        values.put(KEY_HAS_BOOKMARKS,hasBookmark); // Bookmarks
+        values.put(KEY_HAS_LOC,hasLocation); // Location
 
         // Inserting Row
         long id = db.insert(TABLE_LOGIN, null, values);
@@ -139,6 +146,8 @@ public class SQLiteHandler extends SQLiteOpenHelper {
             user.put("_id", cursor.getString(0));
             user.put("name", cursor.getString(1));
             user.put("email", cursor.getString(2));
+            user.put("hasbookmarks", cursor.getString(3));
+            user.put("hasloc", cursor.getString(4));
         }
         cursor.close();
         db.close();
@@ -185,7 +194,7 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         if (cursor.getCount() > 0) {
             subCategories.put("_id", cursor.getString(0));
             subCategories.put("name", cursor.getString(1));
-            subCategories.put("parentID", cursor.getString(2));
+            subCategories.put("parent_id", cursor.getString(2));
         }
         cursor.close();
         db.close();
@@ -205,8 +214,9 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         return cursor;
     }
 
-    public Cursor fetchChildren(int pID) {
-        String query = "SELECT * FROM " + TABLE_SUB_CATEGORIES + " WHERE " + KEY_PARENT_ID + " = '" + pID + "'";
+    public Cursor fetchChildren(String where) {
+        String query = "SELECT * FROM " + TABLE_SUB_CATEGORIES + " WHERE " + where;
+        Log.d(TAG,query);
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
@@ -242,5 +252,25 @@ public class SQLiteHandler extends SQLiteOpenHelper {
         Log.d(TAG, "Deleted all user info from sqlite");
     }
 
+    public Cursor fetchChildrenAll() {
+        String query = "SELECT * FROM " + TABLE_SUB_CATEGORIES;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        cursor.moveToFirst();
+
+        return cursor;
+    }
+
+    public Cursor fetchGroupByName(String where) {
+        String query = "SELECT * FROM " + TABLE_CATEGORIES + " WHERE " + where;
+        Log.d(TAG,query);
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        cursor.moveToFirst();
+
+        return cursor;
+    }
 }
 

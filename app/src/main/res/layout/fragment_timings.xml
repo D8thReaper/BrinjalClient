@@ -5,7 +5,7 @@
     >
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/store_rv"
+        android:id="@+id/timings_rv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbars="vertical"/>

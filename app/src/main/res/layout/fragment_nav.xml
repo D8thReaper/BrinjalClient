@@ -1,29 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/nav_header_container"
         android:layout_width="match_parent"
-        android:layout_height="190dp"
-        android:background="@drawable/background_material"
+        android:layout_height="76dp"
+        android:background="@color/colorPrimaryDark"
         android:orientation="vertical"
         >
 
         <de.hdodenhof.circleimageview.CircleImageView
             xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/profile_image"
-            android:layout_width="76dp"
-            android:layout_height="76dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:src="@drawable/ic_profile"
             app:border_color="#FF000000"
-            android:layout_marginLeft="24dp"
             android:layout_centerVertical="true"
             android:layout_alignParentLeft="true"
             android:layout_alignParentStart="true"
-            android:layout_marginStart="24dp" />
+            android:layout_marginLeft="5dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -35,9 +34,11 @@
             android:gravity="left"
             android:paddingBottom="4dp"
             android:id="@+id/username"
+            android:layout_marginLeft="24dp"
+            android:layout_marginStart="24dp"
             android:layout_above="@+id/email"
-            android:layout_alignLeft="@+id/profile_image"
-            android:layout_alignStart="@+id/profile_image" />
+            android:layout_toRightOf="@+id/profile_image"
+            android:layout_toEndOf="@+id/profile_image" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -45,25 +46,73 @@
             android:text="cool.kabadz93@gmail.com"
             android:id="@+id/email"
             android:gravity="left"
-            android:layout_marginBottom="8dp"
             android:textSize="14sp"
             android:textColor="#fff"
-            android:layout_alignParentBottom="true"
+            android:layout_alignBottom="@+id/profile_image"
             android:layout_alignLeft="@+id/username"
             android:layout_alignStart="@+id/username" />
 
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:id="@+id/editUser"
+            android:src="@drawable/ic_settings"
+            android:layout_marginRight="22dp"
+            android:layout_marginEnd="22dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
     </RelativeLayout>
 
-    <ExpandableListView
-        android:id="@+id/left_drawer"
+    <ListView
+        android:id="@+id/lvCategories"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/nav_header_container"
-        android:layout_gravity="start"
-        android:dividerHeight="1dp"
-        android:divider="@color/list_divider"
-        android:listSelector="@drawable/list_selector"
-        android:background="@color/list_background" />
+        android:layout_height="match_parent"
+        android:layout_below="@+id/nav_header_container">
+
+    </ListView>
+
+    <RelativeLayout
+        android:id="@+id/lvSubCatContainer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:layout_below="@+id/nav_header_container">
+
+        <ListView
+            android:id="@+id/lvSubCategories"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/linearLayout" />
+
+        <RelativeLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/linearLayout">
+
+            <ImageView
+                android:layout_width="70dp"
+                android:layout_height="50dp"
+                android:id="@+id/backNavSC"
+                android:src="@drawable/ic_back_purple"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Small Text"
+                android:id="@+id/textView5"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/backNavSC"
+                android:layout_toEndOf="@+id/backNavSC" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
 
 
 </RelativeLayout>

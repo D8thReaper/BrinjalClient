@@ -63,6 +63,9 @@ public class SplashActivity extends AppCompatActivity {
         pDialog.setCancelable(false);
         pDialog.setIndeterminate(true);
 
+//        Intent i = new Intent(SplashActivity.this,MainActivity.class);
+//        startActivity(i);
+//        finish();
         new CheckInternet().execute();
     }
 

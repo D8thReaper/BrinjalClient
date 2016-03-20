@@ -6,7 +6,7 @@ package exun.cli.in.brinjal.helper;
 public class AppConstants {
 
     // Table names
-    private static final String TABLE_LOGIN = "login";
+    public static final String TABLE_LOGIN = "login";
     public static final String TABLE_CATEGORIES = "categories";
     public static final String TABLE_SUB_CATEGORIES = "subCategories";
 
@@ -54,4 +54,21 @@ public class AppConstants {
 
     // Store details
     public static String URL_STORES = "http://android.brinjal.me/user/v1/place_details/";
+
+    // Coupons for the store
+    public static String URL_COUPONS = "http://android.brinjal.me/user/v1/coupons/";
+
+    // Timings for the store
+    public static String URL_TIMINGS = "http://android.brinjal.me/user/v1/timings/";
+
+    // Login with google
+    public static String URL_LOGIN_GOOGLE = "http://android.brinjal.me/user/v2/registerGoogle";
+
+    // Tags for filters
+    public static String URL_TAGS = "http://android.brinjal.me/user/v1/tags";
+
+    // Code
+    public static String URL_CODE = "http://android.brinjal.me/user/v2/check_code";
+
+
 }

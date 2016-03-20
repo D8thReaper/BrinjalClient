@@ -6,14 +6,17 @@ package exun.cli.in.brinjal.model;
 public class StoreList {
 
     String image,title,subtitle,thumb,description,tags,locality,email;
-    int id,contact;
+    int id;
+    int contact;
+    int rating;
+    float disInM;
     double longi,lati;
     private int isDeals;
 
     public StoreList(){}
 
     public StoreList(String image, String title, String subtitle, String thumb, String description,
-                     String tags, int id, double longi, double lati,String locality){
+                     String tags, int id, double longi, double lati,String locality,int rating,int disInM){
         this.image = image;
         this.title = title;
         this.subtitle = subtitle;
@@ -24,6 +27,8 @@ public class StoreList {
         this.longi = longi;
         this.lati = lati;
         this.locality = locality;
+        this.rating = rating;
+        this.disInM = disInM;
     }
 
     public String getImage() {
@@ -74,8 +79,24 @@ public class StoreList {
         return email;
     }
 
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
+    }
+
     public int getIsDeals() {
         return isDeals;
+    }
+
+    public float getDisInM() {
+        return disInM;
+    }
+
+    public void setDisInM(float disInM) {
+        this.disInM = disInM;
     }
 
     public void setImage(String image) {

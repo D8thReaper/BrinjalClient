@@ -2,47 +2,69 @@ package exun.cli.in.brinjal.adapter;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CursorTreeAdapter;
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.SimpleCursorAdapter;
 import android.widget.SimpleCursorTreeAdapter;
 import android.widget.TextView;
 
+import java.util.HashMap;
+
 import exun.cli.in.brinjal.R;
+import exun.cli.in.brinjal.activity.MainActivity;
+import exun.cli.in.brinjal.contentProvider.Categories;
 import exun.cli.in.brinjal.helper.SQLiteHandler;
 
 /**
  * Created by n00b on 3/6/2016.
  */
-public class FragmentDrawer extends Fragment implements ExpandableListView.OnChildClickListener {
+public class FragmentDrawer extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static String TAG = FragmentDrawer.class.getSimpleName();
 
-    private ExpandableListView expandableListView;
-    private ActionBarDrawerToggle mDrawerToggle;
+    private ListView lvCats, lvSubCats;
     private DrawerLayout mDrawerLayout;
-    private int lastExpandedPosition = -1;
     private SQLiteHandler db;
-    Cursor mGroupsCursor;
-    CursorTreeAdapter mAdapter;
+    SimpleCursorAdapter mAdapterCats,madapterSubCats;
+    RelativeLayout llSubCats;
     private FragmentDrawerListener drawerListener;
     private View containerView;
+    ImageView back;
     TextView userName, userEmail;
 
-    public FragmentDrawer() {
 
+    public String[] childProjections = {"name","parent_id","_id"};
+    public String[] groupProjections = {"name","_id"};
+    private ImageView editUser;
+
+    public FragmentDrawer() {
     }
 
     public void setDrawerListener(FragmentDrawerListener listener) {
         this.drawerListener = listener;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
     }
 
     @Nullable
@@ -50,81 +72,160 @@ public class FragmentDrawer extends Fragment implements ExpandableListView.OnChi
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View layout = inflater.inflate(R.layout.fragment_nav, container, false);
 
+        setUpAdapters();
+
+        lvCats = (ListView) layout.findViewById(R.id.lvCategories);
+        lvSubCats = (ListView) layout.findViewById(R.id.lvSubCategories);
+        llSubCats = (RelativeLayout) layout.findViewById(R.id.lvSubCatContainer);
+        back = (ImageView) layout.findViewById(R.id.backNavSC);userName = (TextView) layout.findViewById(R.id.username);
+        userEmail = (TextView) layout.findViewById(R.id.email);
+        editUser = (ImageView) layout.findViewById(R.id.editUser);
+
+        lvCats.setAdapter(mAdapterCats);
+        lvSubCats.setAdapter(madapterSubCats);
+
+        // Prepare the loader. Either re-connect with an existing one,
+        // or start a new one.
+        Loader loader = getLoaderManager().getLoader(-1);
+        if (loader != null && !loader.isReset()) {
+            getLoaderManager().restartLoader(-1, null, this);
+        } else {
+            getLoaderManager().initLoader(-1, null, this);
+        }
+
+        setOnClickListeners();
+
         // SQLite database handler
         db = new SQLiteHandler(getActivity().getApplicationContext());
-
-        userName = (TextView) layout.findViewById(R.id.username);
-        userEmail = (TextView) layout.findViewById(R.id.email);
 
         String name = db.getUserDetails().get("name");
 
         userName.setText(name);
         userEmail.setText(db.getUserDetails().get("email"));
 
-
-        mGroupsCursor = db.fetchGroup();
-        getActivity().startManagingCursor(mGroupsCursor);
-        mGroupsCursor.moveToFirst();
-
-        expandableListView = (ExpandableListView) layout.findViewById(R.id.left_drawer);
-
-        mAdapter = new NavAdapter(getActivity(), mGroupsCursor,
-                R.layout.nav_group_item,                     // Your row layout for a group
-                new String[] { "name" },                      // Field(s) to use from group cursor
-                new int[] { R.id.lblListHeader },                 // Widget ids to put group data into
-                R.layout.nav_child_item,                 // Your row layout for a child
-                new String[] { "name"},  // Field(s) to use from child cursors
-                new int[] { R.id.lblListItem});          // Widget ids to put child data into
-
-        expandableListView.setAdapter(mAdapter);                         // set the list adapter.
-
-        expandableListView.setOnChildClickListener(this);
-
-        expandableListView.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
-
-            @Override
-            public void onGroupExpand(int groupPosition) {
-                if (lastExpandedPosition != -1
-                        && groupPosition != lastExpandedPosition) {
-                    expandableListView.collapseGroup(lastExpandedPosition);
-                }
-                lastExpandedPosition = groupPosition;
-            }
-        });
         return layout;
     }
 
-    public void setUp(int fragmentId, DrawerLayout drawerLayout, final Toolbar toolbar) {
-        containerView = getActivity().findViewById(fragmentId);
-        mDrawerLayout = drawerLayout;
-        mDrawerToggle = new ActionBarDrawerToggle(getActivity(), drawerLayout, toolbar, R.string.openDrawer, R.string.closeDrawer) {
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerOpened(drawerView);
-                getActivity().invalidateOptionsMenu();
-            }
+    private void setOnClickListeners() {
 
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerClosed(drawerView);
-                getActivity().invalidateOptionsMenu();
-            }
+        final FragmentDrawer flg = this;
 
+        lvCats.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-                super.onDrawerSlide(drawerView, slideOffset);
-                toolbar.setAlpha(1 - slideOffset / 2);
-            }
-        };
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                lvCats.setVisibility(View.GONE);
+                llSubCats.setVisibility(View.VISIBLE);
+                Cursor cursor = (Cursor) lvCats.getItemAtPosition(position);
 
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-        mDrawerLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                mDrawerToggle.syncState();
+                int groupId = (cursor.getInt(cursor.getColumnIndex("_id")));
+                Log.d(TAG, "getChildrenCursor() for groupId " + groupId);
+
+                Loader loader = getLoaderManager().getLoader(groupId);
+                if ( loader != null && !loader.isReset() ) {
+                    getLoaderManager().restartLoader(groupId, null, flg);
+                } else {
+                    getLoaderManager().initLoader(groupId, null, flg);
+                }
             }
         });
 
+        back.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                lvCats.setVisibility(View.VISIBLE);
+                llSubCats.setVisibility(View.GONE);
+            }
+        });
+
+        lvSubCats.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor cursor = (Cursor) lvSubCats.getItemAtPosition(position);
+
+                int subCatID = cursor.getInt(cursor.getColumnIndex("_id"));
+                String subCatNam = cursor.getString(cursor.getColumnIndex("name"));
+
+                mDrawerLayout.closeDrawers();
+                drawerListener.onDrawerItemSelected(view, subCatID, subCatNam, 1);
+            }
+        });
+
+        editUser.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawerListener.onDrawerItemSelected(v, 0, "User Profile", 3);
+            }
+        });
+    }
+
+    private void setUpAdapters() {
+        mAdapterCats = new SimpleCursorAdapter(getActivity().getBaseContext(),
+                R.layout.nav_group_item,
+                null,
+                groupProjections,
+                new int[]{R.id.lblListHeader}, 0);
+
+        madapterSubCats = new SimpleCursorAdapter(getActivity().getBaseContext(),
+                R.layout.nav_child_item,
+                null,
+                childProjections,
+                new int[]{R.id.lblListItem}, 0);
+    }
+
+    public void setUp(int fragmentId, DrawerLayout drawerLayout) {
+        containerView = getActivity().findViewById(fragmentId);
+        mDrawerLayout = drawerLayout;
+
+    }
+
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        // This is called when a new Loader needs to be created.
+        Log.d(TAG, "onCreateLoader for loader_id " + id);
+        CursorLoader cl;
+        if (id!= -1){
+            Uri uri = Categories.CONTENT_URI_SUB_CATEGORIES;
+            String selection = "parent_id = '" + id + "'";
+            cl = new CursorLoader(getActivity(),
+                    uri,
+                    childProjections,
+                    selection,
+                    null,
+                    null);
+        } else {
+            // group cursor
+            Uri groupsUri = Categories.CONTENT_URI_CATEGORIES;
+            cl = new CursorLoader(getActivity(), groupsUri,
+                    groupProjections, null, null, null);
+        }
+        return cl;
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        int id = loader.getId();
+        Log.d(TAG, "onLoadFinished() for loader_id " + id);
+        if (id != -1) {
+            // child cursor
+            madapterSubCats.swapCursor(data);
+        } else {
+            // group cursor
+            mAdapterCats.swapCursor(data);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+        // This is called when the last Cursor provided to onLoadFinished()
+        // is about to be closed.
+        int id = loader.getId();
+        Log.d(TAG, "onLoaderReset() for loader_id " + id);
+        if (id != -1) {
+            // child cursor
+            madapterSubCats.swapCursor(null);
+        } else {
+            mAdapterCats.swapCursor(null);
+        }
     }
 
     public interface FragmentDrawerListener {
@@ -132,38 +233,7 @@ public class FragmentDrawer extends Fragment implements ExpandableListView.OnChi
     }
 
     @Override
-    public boolean onChildClick(ExpandableListView parent, View v,
-                                int groupPosition, int childPosition, long id) {
-
-        Cursor pointerChildCursor,pointerParentCursor;
-        pointerParentCursor = db.fetchGroup();
-        getActivity().startManagingCursor(pointerParentCursor);
-        pointerParentCursor.moveToPosition(groupPosition);
-
-        pointerChildCursor = db.fetchChildren(pointerParentCursor.getInt(0));
-        getActivity().startManagingCursor(pointerChildCursor);
-        pointerChildCursor.moveToPosition(childPosition);
-        int subId = pointerChildCursor.getInt(0);
-        String title = pointerChildCursor.getString(1);
-
-
-        drawerListener.onDrawerItemSelected(v, subId,title,1);
-        mDrawerLayout.closeDrawer(containerView);
-        return false;
-    }
-
-    public class NavAdapter extends SimpleCursorTreeAdapter {
-
-        public NavAdapter(Context context, Cursor cursor, int groupLayout, String[] groupFrom, int[] groupTo, int childLayout, String[] childFrom, int[] childTo) {
-            super(context, cursor, groupLayout, groupFrom, groupTo, childLayout, childFrom, childTo);
-        }
-
-        @Override
-        protected Cursor getChildrenCursor(Cursor groupCursor) {
-            Cursor childCursor = db.fetchChildren(groupCursor.getInt(groupCursor.getColumnIndex("_id")));
-            getActivity().startManagingCursor(childCursor);
-            childCursor.moveToFirst();
-            return childCursor;
-        }
+    public void onResume() {
+        super.onResume();
     }
 }

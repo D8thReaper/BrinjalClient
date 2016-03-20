@@ -130,8 +130,13 @@ public class Register extends Activity {
                         // User successfully stored in MySQL
                         // Now store the user in sqlite
                         int id = jObj.getInt("id");
+                        int hasLoc = jObj.getInt("hasLoc");
+                        int hasBookmark = jObj.getInt("hasBookmarks");
 
-                        db.addUser(id,name, email);
+                        session.setBookmarks(hasBookmark);
+                        session.setLoc(hasLoc);
+
+                        db.addUser(id,name,email,hasBookmark,hasLoc);
 
                         // Launch camera activity
                         Intent intent = new Intent(

@@ -271,6 +271,7 @@ public class GrabLocation extends ActionBarActivity implements ConnectionCallbac
         } else {
             mLocationAddressTextView.setText(mAddressOutput);
             test.setVisibility(View.VISIBLE);
+            // Add retry button and update retry count
             updateUIWidgets();
         }
     }
@@ -325,6 +326,8 @@ public class GrabLocation extends ActionBarActivity implements ConnectionCallbac
                 session.setLongi(resultData.getDouble(AppConstants.RESULT_LONG));
                 session.setLocality(resultData.getString(AppConstants.RESULT_LOCALITY));
                 session.setCity(resultData.getString(AppConstants.RESULT_CITY));
+            } else {
+
             }
 
             // Reset. Stop showing the progress dialog.

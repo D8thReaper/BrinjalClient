@@ -12,16 +12,32 @@
         android:layout_width="match_parent"
         android:orientation="vertical"
         >
-        <include
+        <RelativeLayout
             android:id="@+id/toolbar"
-            layout="@layout/toolbar"
-            />
+            android:background="#f1f1f1"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize">
+
+            <ImageView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:id="@+id/imageView6"
+                android:src="@drawable/ic_burger"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="22dp"
+                android:layout_marginStart="22dp" />
+
+        </RelativeLayout>
 
         <FrameLayout
             android:id="@+id/frame"
-            android:layout_below="@id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/toolbar">
 
         </FrameLayout>
 

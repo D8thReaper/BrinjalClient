@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/card_view_timings"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="5dp"
+        android:background="#fff"
+        card_view:cardCornerRadius="0dp"
+        card_view:contentPadding="10dp">
+
+        <RelativeLayout
+            android:background="#fff"
+            android:layout_width="match_parent"
+            android:layout_height="100dp">
+
+            <TextView
+                android:id="@+id/day"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Monday"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="9:00 a.m. - 12:00 p.m."
+                android:id="@+id/timingShift1"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginLeft="48dp"
+                android:layout_marginStart="48dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="1:00 p.m. - 8:00 p.m."
+                android:id="@+id/timingShift2"
+                android:layout_below="@+id/timingShift1"
+                android:layout_alignLeft="@+id/timingShift1"
+                android:layout_alignStart="@+id/timingShift1" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="Closed"
+                android:id="@+id/timingClosed"
+                android:textStyle="normal|italic"
+                android:textColor="#fb0303"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:visibility="gone"
+                android:layout_marginLeft="48dp"
+                android:layout_marginStart="48dp" />
+
+
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+
+</LinearLayout>

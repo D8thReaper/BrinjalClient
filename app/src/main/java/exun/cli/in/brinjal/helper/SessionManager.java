@@ -31,6 +31,8 @@ public class SessionManager {
     private static final String KEY_LONG = "longitude";
     private static final String KEY_LOCALITY = "locality";
     private static final String KEY_CITY = "city";
+    private static final String KEY_HAS_BOOKMARKS = "bookmarks";
+    private static final String KEY_HAS_LOC = "loc";
 
     public SessionManager(Context context) {
         this._context = context;
@@ -56,6 +58,26 @@ public class SessionManager {
         editor.commit();
 
         Log.d(TAG, "Categories have been saved");
+    }
+
+    public void setBookmarks(int bookmarks) {
+
+        editor.putInt(KEY_HAS_BOOKMARKS, bookmarks);
+
+        // commit changes
+        editor.commit();
+
+        Log.d(TAG, "Bookmarks have been saved");
+    }
+
+    public void setLoc(int loc) {
+
+        editor.putInt(KEY_HAS_LOC, loc);
+
+        // commit changes
+        editor.commit();
+
+        Log.d(TAG, "Location have been saved");
     }
 
     public void setLat(Double lat){
@@ -88,6 +110,14 @@ public class SessionManager {
 
         // commit changes
         editor.commit();
+    }
+
+    public int hasBookmark(){
+        return pref.getInt(KEY_HAS_BOOKMARKS, 0);
+    }
+
+    public int hasLoc(){
+        return pref.getInt(KEY_HAS_LOC, 0);
     }
 
     public boolean isLoggedIn(){
