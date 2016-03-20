@@ -1,6 +1,6 @@
-# Brinjal
+# Discover
 
-Brinjal is an engine to connect you to customers around you!
+Discover is an engine to connect you to customers around you!
 
 ## Why?
 
